@@ -64,9 +64,9 @@ mkdir -p /etc/nginx/vhosts/
   echo "Rendering template of nginx.conf"
   sed -e "s/\${DOMAIN}/${DOMAIN}/g" \
       -e "s/\${UPSTREAM}/${UPSTREAM}/" \
-      -e "s/\${SSL_CERT}/${SSL_CERT:-/etc/nginx/ssl/chained.pem}/" \
-      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-/etc/nginx/ssl/domain.key}/" \
-      -e "s/\${SSL_DHPARAMS}/${SSL_DHPARAMS:-/etc/ssl/dhparams.pem}/" \
+      -e "s/\${SSL_CERT}/${SSL_CERT:-\/etc\/nginx\/ssl\/chained.pem}/" \
+      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-\/etc\/nginx\/ssl\/domain.key}/" \
+      -e "s/\${SSL_DHPARAMS}/${SSL_DHPARAMS:-\/etc\/ssl\/dhparams.pem}/" \
       /templates/nginx.conf > "$dest"
 
 
@@ -86,9 +86,9 @@ do
   sed -e "s/\${DOMAIN}/${t}/g" \
       -e "s/\${UPSTREAM}/${UPSTREAMARRAY[upstreamId]}/" \
       -e "s/\${PATH}/${DOMAINSARRAY[0]}/" \
-      -e "s/\${SSL_CERT}/${SSL_CERT:-/etc/nginx/ssl/chained.pem}/" \
-      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-/etc/nginx/ssl/domain.key}/" \
-      -e "s/\${SSL_DHPARAMS}/${SSL_DHPARAMS:-/etc/ssl/dhparams.pem}/" \
+      -e "s/\${SSL_CERT}/${SSL_CERT:-\/etc\/nginx\/ssl\/chained.pem}/" \
+      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-\/etc\/nginx\/ssl\/domain.key}/" \
+      -e "s/\${SSL_DHPARAMS}/${SSL_DHPARAMS:-\/etc\/ssl\/dhparams.pem}/" \
       "$src" > "$dest"
 
   upstreamId=$((upstreamId+1))
