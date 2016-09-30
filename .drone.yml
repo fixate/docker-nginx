@@ -1,6 +1,0 @@
-pipeline:
-  docker:
-    repo: gtaylor/nginx-for-drone
-    when:
-      branch: master
-      event: push

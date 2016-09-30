@@ -2,6 +2,11 @@
 
 *[dockerhub build](https://hub.docker.com/r/smashwilson/lets-nginx/)*
 
+Fixate changes:
+
+- Rip out letsencrypt
+- SSL_CERT and SSL_KEY_CERT variables for templating with nginx
+
 Put browser-valid TLS termination in front of any Dockerized HTTP service with one command.
 
 ```bash
