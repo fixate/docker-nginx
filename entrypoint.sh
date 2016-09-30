@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 # Validate environment variables
 
@@ -59,16 +59,14 @@ chown nginx:nginx /var/tmp/nginx
 #create vhost directory
 mkdir -p /etc/nginx/vhosts/
 
-[ -z "${SSL_CERT}" ] && SSL_CERT=/etc/nginx/ssl/domain.crt
-[ -z "${SSL_CERT_KEY}" ] && SSL_CERT_KEY=/etc/nginx/ssl/domain.key
-
 # Process the nginx.conf with raw values of $DOMAIN and $UPSTREAM to ensure backward-compatibility
   dest="/etc/nginx/nginx.conf"
   echo "Rendering template of nginx.conf"
   sed -e "s/\${DOMAIN}/${DOMAIN}/g" \
       -e "s/\${UPSTREAM}/${UPSTREAM}/" \
-      -e "s/\${SSL_CERT}/${SSL_CERT}/" \
-      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY}/" \
+      -e "s/\${SSL_CERT}/${SSL_CERT:-/etc/nginx/ssl/chained.pem}/" \
+      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-/etc/nginx/ssl/domain.key}/" \
+      -e "s/\${SSH_DHPARAM}/${SSH_DHPARAM:-/etc/nginx/ssl/dhparam.pem}/" \
       /templates/nginx.conf > "$dest"
 
 
