@@ -66,9 +66,9 @@ function escape_slashes() {
 # Process the nginx.conf with raw values of $DOMAIN and $UPSTREAM to ensure backward-compatibility
   dest="/etc/nginx/nginx.conf"
   echo "Rendering template of nginx.conf with settings:"
-  SSL_CERT_KEY=${SSL_CERT_KEY:-/etc/nginx/ssl/domain.pem}
-  SSL_DHPARAMS=${SSL_DHPARAMS:-/etc/ssl/dhparams.pem}
   SSL_CERT=${SSL_CERT:-/etc/nginx/ssl/chained.pem}
+  SSL_CERT_KEY=${SSL_CERT_KEY:-/etc/nginx/ssl/domain.key}
+  SSL_DHPARAMS=${SSL_DHPARAMS:-/etc/ssl/dhparams.pem}
   echo "DOMAIN=${DOMAIN} UPSTREAM=${UPSTREAM} SSL_CERT=$SSL_CERT"
   echo "SSL_CERT_KEY=$SSL_CERT_KEY SSL_DHPARAMS=$SSL_DHPARAMS"
   sed -e "s/\${DOMAIN}/${DOMAIN}/g" \
