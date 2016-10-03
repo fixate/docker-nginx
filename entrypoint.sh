@@ -19,12 +19,12 @@ if [ "${MISSING}" != "" ]; then
 #Processing DOMAIN into an array
 DOMAINSARRAY=($(echo "${DOMAIN}" | awk -F ";" '{for(i=1;i<=NF;i++) print $i;}'))
 echo "Provided domains"
-printf "%s\n" "${DOMAINSARRAY[@]}"
+printf "====> %s\n" "${DOMAINSARRAY[@]}"
 
 #Processing UPSTREAM into an array
 UPSTREAMARRAY=($(echo "${UPSTREAM}" | awk -F ";" '{for(i=1;i<=NF;i++) print $i;}'))
 echo "Services to reverse-proxy"
-printf "%s\n" "${UPSTREAMARRAY[@]}"
+printf "====> %s\n" "${UPSTREAMARRAY[@]}"
 
 #The two arrays should have the same lenght
 if [ "${#DOMAINSARRAY[@]}" != "${#UPSTREAMARRAY[@]}" ]; then
@@ -59,16 +59,24 @@ chown nginx:nginx /var/tmp/nginx
 #create vhost directory
 mkdir -p /etc/nginx/vhosts/
 
+function escape_slashes() {
+  echo $1 | sed 's_/_\\/_g'
+}
+
 # Process the nginx.conf with raw values of $DOMAIN and $UPSTREAM to ensure backward-compatibility
   dest="/etc/nginx/nginx.conf"
-  echo "Rendering template of nginx.conf"
+  echo "Rendering template of nginx.conf with settings:"
+  SSL_CERT_KEY=${SSL_CERT_KEY:-/etc/nginx/ssl/domain.pem}
+  SSL_DHPARAMS=${SSL_DHPARAMS:-/etc/ssl/dhparams.pem}
+  SSL_CERT=${SSL_CERT:-/etc/nginx/ssl/chained.pem}
+  echo "DOMAIN=${DOMAIN} UPSTREAM=${UPSTREAM} SSL_CERT=$SSL_CERT"
+  echo "SSL_CERT_KEY=$SSL_CERT_KEY SSL_DHPARAMS=$SSL_DHPARAMS"
   sed -e "s/\${DOMAIN}/${DOMAIN}/g" \
       -e "s/\${UPSTREAM}/${UPSTREAM}/" \
-      -e "s/\${SSL_CERT}/${SSL_CERT:-\/etc\/nginx\/ssl\/chained.pem}/" \
-      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-\/etc\/nginx\/ssl\/domain.key}/" \
-      -e "s/\${SSL_DHPARAMS}/${SSL_DHPARAMS:-\/etc\/ssl\/dhparams.pem}/" \
+      -e "s/\${SSL_CERT}/$(escape_slashes $SSL_CERT)/" \
+      -e "s/\${SSL_CERT_KEY}/$(escape_slashes $SSL_CERT_KEY)/" \
+      -e "s/\${SSL_DHPARAMS}/$(escape_slashes $SSL_DHPARAMS)/" \
       /templates/nginx.conf > "$dest"
-
 
 # Process templates
 upstreamId=0
@@ -86,9 +94,9 @@ do
   sed -e "s/\${DOMAIN}/${t}/g" \
       -e "s/\${UPSTREAM}/${UPSTREAMARRAY[upstreamId]}/" \
       -e "s/\${PATH}/${DOMAINSARRAY[0]}/" \
-      -e "s/\${SSL_CERT}/${SSL_CERT:-\/etc\/nginx\/ssl\/chained.pem}/" \
-      -e "s/\${SSL_CERT_KEY}/${SSL_CERT_KEY:-\/etc\/nginx\/ssl\/domain.key}/" \
-      -e "s/\${SSL_DHPARAMS}/${SSL_DHPARAMS:-\/etc\/ssl\/dhparams.pem}/" \
+      -e "s/\${SSL_CERT}/$(escape_slashes $SSL_CERT)/" \
+      -e "s/\${SSL_CERT_KEY}/$(escape_slashes $SSL_CERT_KEY)/" \
+      -e "s/\${SSL_DHPARAMS}/$(escape_slashes $SSL_DHPARAMS)/" \
       "$src" > "$dest"
 
   upstreamId=$((upstreamId+1))
