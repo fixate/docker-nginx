@@ -90,6 +90,15 @@ do
     src="/configs/${t}.conf"
   fi
 
+  if [ -n "${WS_BACKEND}" ]; then
+    [ -z "${WS_PATH}" ] && WS_PATH=/ws
+    WEBSOCKET_CONFIG=$(sed -e "s/\${WS_BACKEND}/$(escape_slashes $WS_BACKEND)"
+                           -e "s/\${WS_PATH}/$(escape_slashes $WS_PATH)"
+                           /templates/ws_block.conf)
+  else
+    WEBSOCKET_CONFIG="# No websocket config"
+  fi
+
   echo "Rendering template of $t in $dest"
   sed -e "s/\${DOMAIN}/${t}/g" \
       -e "s/\${UPSTREAM}/${UPSTREAMARRAY[upstreamId]}/" \
@@ -97,6 +106,7 @@ do
       -e "s/\${SSL_CERT}/$(escape_slashes $SSL_CERT)/" \
       -e "s/\${SSL_CERT_KEY}/$(escape_slashes $SSL_CERT_KEY)/" \
       -e "s/\${SSL_DHPARAMS}/$(escape_slashes $SSL_DHPARAMS)/" \
+      -e "s/\${WEBSOCKET_CONFIG}/$(escape_slashes $WEBSOCKET_CONFIG)/" \
       "$src" > "$dest"
 
   upstreamId=$((upstreamId+1))
